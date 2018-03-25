@@ -18,5 +18,35 @@
     <string name="low_priority">Low</string>
 
     <string name="add_button">Add</string>
+    <string name="appwidget_text">EXAMPLE</string>
+    <string name="add_widget">Add widget</string>
+    <string name="photo">Choose an image by clicking this icon</string>
+    <string name="addnew">Add new Todo</string>
+    <string name="edit">Enter todo name</string>
+    <string name="date">Set data for todo</string>
+    <string name="time">Set time for reminder</string>
+    <string name="prior">Priority Text</string>
+    <string name="add">Add Task to TodoList</string>
+    <string name="image">Image representing todo</string>
+    <string name="desc">Todo description</string>
+    <string name="remind">Reminder set at :</string>
+    <string name="empty">Text Empty!</string>
+    <string name="year">Choose valid year</string>
+    <string name="month">Choose valid month</string>
+    <string name="day">Choose valid day</string>
+    <string name="time1">Invalid time</string>
+    <string name="choose">Please choose an image</string>
+    <string name="not">Notification set!</string>
+    <string name="images" translatable="false">images</string>
+    <string name="select" translatable="false">Select Picture</string>
+    <string name="signout">Sign Out</string>
+    <string name="todo_reminder">ToDo Reminder</string>
+    <string name="compl">Completed!</string>
+    <string name="adsid">ca-app-pub-3940256099942544/1033173712</string>
+    <string name="sign">Signed in as </string>
+    <string name="todo">Todo List</string>
+    <string name="net">No Internet Connectivity</string>
+    <string name="cancel">Sign in cancelled!</string>
+
 
 </resources>

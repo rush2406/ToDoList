@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     package="com.example.android.todolist">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.MANAGE_DOCUMENTS" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="false"
@@ -12,7 +18,8 @@
         tools:ignore="GoogleAppIndexingWarning">
 
         <!-- The manifest entry for the MainActivity -->
-        <activity android:name="com.example.android.todolist.MainActivity">
+        <activity android:name=".MainActivity"
+            android:label="ToDoList">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -22,17 +29,43 @@
 
         <!-- AddTaskActivity -->
         <activity
-            android:name="com.example.android.todolist.AddTaskActivity"
+            android:name=".AddTaskActivity"
             android:label="@string/add_task_activity_name" />
 
         <!-- Register the TaskContentProvider -->
         <!-- Set name, authorities, and exported attributes -->
         <!-- exported = false limits access to this ContentProvider to only this app -->
-        <provider
-            android:name="com.example.android.todolist.data.TaskContentProvider"
-            android:authorities="com.example.android.todolist"
-            android:exported="false"/>
 
+        <service android:name=".NotifyService" />
+        <service android:name=".ScheduleService" />
+        <service android:name=".TodoService"/>
+        <service android:name=".WidgetService"
+            android:permission="android.permission.BIND_REMOTEVIEWS"/>
+        <service android:name=".ReminderIntentService"
+            android:exported="false"/>
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+        <activity
+            android:name="com.google.android.gms.ads.AdActivity"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
+            android:theme="@android:style/Theme.Translucent" />
+
+        <provider
+            android:name=".data.TaskContentProvider"
+            android:authorities="com.example.android.todolist"
+            android:exported="false" />
+
+
+        <receiver android:name=".TodoWidgetProvider">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/todo_widget_provider_info" />
+        </receiver>
     </application>
 
 </manifest>

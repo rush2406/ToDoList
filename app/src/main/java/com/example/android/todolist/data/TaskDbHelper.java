@@ -20,7 +20,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import com.example.android.todolist.data.TaskContract.TaskEntry;
+import com.example.android.todolist.TaskContract;
 
 
 public class TaskDbHelper extends SQLiteOpenHelper {
@@ -33,7 +33,7 @@ public class TaskDbHelper extends SQLiteOpenHelper {
 
 
     // Constructor
-    TaskDbHelper(Context context) {
+    public TaskDbHelper(Context context) {
         super(context, DATABASE_NAME, null, VERSION);
     }
 
@@ -45,10 +45,9 @@ public class TaskDbHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
 
         // Create tasks table (careful to follow SQL formatting rules)
-        final String CREATE_TABLE = "CREATE TABLE "  + TaskEntry.TABLE_NAME + " (" +
-                        TaskEntry._ID                + " INTEGER PRIMARY KEY, " +
-                        TaskEntry.COLUMN_DESCRIPTION + " TEXT NOT NULL, " +
-                        TaskEntry.COLUMN_PRIORITY    + " INTEGER NOT NULL);";
+        final String CREATE_TABLE = "CREATE TABLE " + TaskContract.TaskEntry.TABLE_NAME + " (" +
+                TaskContract.TaskEntry._ID + " INTEGER PRIMARY KEY, " +
+                TaskContract.TaskEntry.COLUMN_DESCRIPTION + " TEXT NOT NULL);";
 
         db.execSQL(CREATE_TABLE);
     }
@@ -60,7 +59,7 @@ public class TaskDbHelper extends SQLiteOpenHelper {
      */
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + TaskEntry.TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + TaskContract.TaskEntry.TABLE_NAME);
         onCreate(db);
     }
 }

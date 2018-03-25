@@ -3,6 +3,11 @@
     This vertical linear layout contains all the views in the AddTaskActivity code.
     This includes an EditText to add a task description, and buttons to select a priority
 -->
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent">
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
@@ -14,6 +19,17 @@
     android:paddingStart="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin">
 
+    <ImageButton
+        android:id="@+id/photoPickerButton"
+        android:layout_marginLeft="@dimen/activity_vertical_margin"
+        android:layout_marginStart="16dp"
+        android:contentDescription="@string/photo"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_gravity="top"
+        android:layout_marginBottom="10dp"
+        android:background="@android:drawable/ic_menu_gallery" />
+
     <!-- EditText for getting task description input -->
     <EditText
         android:id="@+id/editTextTaskDescription"
@@ -21,15 +37,22 @@
         android:layout_height="wrap_content"
         android:gravity="start"
         android:hint="@string/edit_task_description"
+        android:contentDescription="@string/edit"
         android:paddingBottom ="@dimen/activity_horizontal_margin"/>
 
-    <EditText
-        android:id="@+id/dateTextTaskDescription"
-        android:layout_width="match_parent"
+    <DatePicker
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="start"
-        android:hint="Enter Task Reminder Date"
-        android:paddingBottom ="@dimen/activity_horizontal_margin"/>
+        android:contentDescription="@string/date"
+        android:paddingTop="10dp"
+        android:id="@+id/date"></DatePicker>
+
+    <TimePicker
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingTop="10dp"
+        android:contentDescription="@string/time"
+        android:id="@+id/timepicker"></TimePicker>
 
     <!-- TextView and FrameLayout (which contains buttons) for Priority Selection -->
     <TextView
@@ -64,6 +87,7 @@
                 android:layout_height="wrap_content"
                 android:background="@color/materialRed"
                 android:text="@string/high_priority"
+                android:contentDescription="@string/high_priority"
                 android:layout_weight="1"
                 android:onClick="onPrioritySelected"/>
 
@@ -75,6 +99,7 @@
                 android:layout_height="wrap_content"
                 android:background="@color/materialOrange"
                 android:text="@string/med_priority"
+                android:contentDescription="@string/med_priority"
                 android:layout_weight="1"
                 android:onClick="onPrioritySelected"/>
 
@@ -85,6 +110,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@color/materialYellow"
+                android:contentDescription="@string/low_priority"
                 android:text="@string/low_priority"
                 android:layout_weight="1"
                 android:onClick="onPrioritySelected"/>
@@ -134,9 +160,10 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:text="@string/add_button"
+        android:contentDescription="@string/add"
         style="@style/TextAppearance.AppCompat.Large"
         android:textColor="@android:color/primary_text_dark"
         android:background="@color/colorPrimary"
         android:onClick="onClickAddTask"/>
-
-</LinearLayout>
+    </LinearLayout>
+    </ScrollView>

@@ -16,19 +16,31 @@
 
 package com.example.android.todolist;
 
+import android.app.NotificationManager;
+import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.InterstitialAd;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -39,7 +51,6 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
 import java.util.List;
-
 
 public class MainActivity extends AppCompatActivity {
 
@@ -53,78 +64,133 @@ public class MainActivity extends AppCompatActivity {
     private ListView mListView;
     private FirebaseDatabase mFireBaseDataBase;
     public static DatabaseReference mReference;
-    //private ImageButton photo;
     private ChildEventListener mChild;
+    private InterstitialAd mInterstitialAd;
+    private boolean isConnected;
     private FirebaseAuth mAuth;
+    private TextView Empty;
+    public static FirebaseUser user;
     private FirebaseAuth.AuthStateListener mStateListener;
-    /*private FirebaseStorage mStorage;
-    private StorageReference mStorageRef;
-    private static final int RC_PHOTO_PICKER = 2;*/
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        CollapsingToolbarLayout layout = (CollapsingToolbarLayout) findViewById(R.id.collapse);
+        layout.setTitle(getString(R.string.todo));
         // Set the RecyclerView to its corresponding view
         mListView = (ListView) findViewById(R.id.recyclerViewTasks);
-        //photo = (ImageButton)findViewById(R.id.photoPickerButton);
-       /* photo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                intent.setType("image/jpeg");
-                intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
-                startActivityForResult(Intent.createChooser(intent, "Complete action using"), RC_PHOTO_PICKER);
-            }
-        });*/
-        mFireBaseDataBase = FirebaseDatabase.getInstance();
-        mAuth = FirebaseAuth.getInstance();
-        mReference = mFireBaseDataBase.getReference().child("todolist");
-        // mStorageRef = mStorage.getReference().child("images");
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        ConnectivityManager cm =
+                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 
-        // Set the layout for the RecyclerView to be a linear layout, which measures and
-        // positions items within a RecyclerView into a linear list
-        // Initialize the adapter and attach it to the RecyclerView
-        final List<Task> taskList = new ArrayList<>();
-        mAdapter = new TaskAdapter(this, R.layout.task_layout, taskList);
-        mListView.setAdapter(mAdapter);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        isConnected = activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
+        if (isConnected) {
+            mFireBaseDataBase = FirebaseDatabase.getInstance();
+            mAuth = FirebaseAuth.getInstance();
+            mReference = mFireBaseDataBase.getReference().child("todolist");
+            // mStorageRef = mStorage.getReference().child("images");
 
-        FloatingActionButton fabButton = (FloatingActionButton) findViewById(R.id.fab);
+            // Set the layout for the RecyclerView to be a linear layout, which measures and
+            // positions items within a RecyclerView into a linear list
+            // Initialize the adapter and attach it to the RecyclerView
+            final List<Task> taskList = new ArrayList<>();
+            mAdapter = new TaskAdapter(this, R.layout.task_layout, taskList);
+            mListView.setAdapter(mAdapter);
 
-        fabButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // Create a new intent to start an AddTaskActivity
-                Intent addTaskIntent = new Intent(MainActivity.this, AddTaskActivity.class);
-                startActivity(addTaskIntent);
-            }
-        });
+            FloatingActionButton fabButton = (FloatingActionButton) findViewById(R.id.fab);
 
-        mStateListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+            fabButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    // Create a new intent to start an AddTaskActivity
 
-                FirebaseUser user = firebaseAuth.getCurrentUser();
-                if (user != null) {
+                    mInterstitialAd = new InterstitialAd(MainActivity.this);
+                    mInterstitialAd.setAdUnitId(getString(R.string.adsid));
+                    mInterstitialAd.setAdListener(new AdListener() {
+                        @Override
+                        public void onAdLoaded() {
+                            super.onAdLoaded();
+                            //if (bar != null)
+                            //  bar.setVisibility(View.GONE);
+                            mInterstitialAd.show();
+                        }
 
-                    onSignedInInitialize();
-                } else {
-                    OnSignedOut();
-                    startActivityForResult(
-                            AuthUI.getInstance()
-                                    .createSignInIntentBuilder()
-                                    .setIsSmartLockEnabled(false)
-                                    .setProviders(
-                                            AuthUI.GOOGLE_PROVIDER,
-                                            AuthUI.EMAIL_PROVIDER)
-                                    .build(),
-                            RC_SIGN_IN);
+                        @Override
+                        public void onAdFailedToLoad(int i) {
+                            super.onAdFailedToLoad(i);
+                            Intent addTaskIntent = new Intent(MainActivity.this, AddTaskActivity.class);
+                            startActivity(addTaskIntent);
+                        }
+
+                        @Override
+                        public void onAdClosed() {
+
+                            Intent addTaskIntent = new Intent(MainActivity.this, AddTaskActivity.class);
+                            startActivity(addTaskIntent);
+                        }
+                    });
+
+                    AdRequest ar = new AdRequest
+                            .Builder().build();
+                    mInterstitialAd.loadAd(ar);
                 }
-            }
-        };
+            });
 
+            mStateListener = new FirebaseAuth.AuthStateListener() {
+                @Override
+                public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+
+                    user = firebaseAuth.getCurrentUser();
+                    if (user != null) {
+                        onSignedInInitialize();
+                    } else {
+                        OnSignedOut();
+                        startActivityForResult(
+                                AuthUI.getInstance()
+                                        .createSignInIntentBuilder()
+                                        .setIsSmartLockEnabled(false)
+                                        .setProviders(
+                                                AuthUI.GOOGLE_PROVIDER,
+                                                AuthUI.EMAIL_PROVIDER)
+                                        .build(),
+                                RC_SIGN_IN);
+                    }
+                }
+            };
+        } else {
+            Empty.setVisibility(View.VISIBLE);
+            Empty.setText(getString(R.string.net));
+            mListView.setVisibility(View.GONE);
+
+        }
+
+    }
+
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (isConnected) {
+            if (mAuth.getCurrentUser() != null) {
+                user = mAuth.getCurrentUser();
+                Cursor cursor = getContentResolver().query(TaskContract.TaskEntry.CONTENT_URI,
+                        null,
+                        null,
+                        null,
+                        null);
+                if (cursor.getCount() != 0 || cursor != null) {
+                    getContentResolver().delete(TaskContract.TaskEntry.CONTENT_URI, null, null);
+                    if (!AddTaskActivity.enter)
+                        for (int i = 0; i < TodoService.tinku.size(); i++)
+                            TodoService.tinku.remove(i);
+                }
+                cursor.close();
+            }
+        }
     }
 
     @Override
@@ -132,34 +198,34 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == RC_SIGN_IN) {
             if (resultCode == RESULT_OK) {
-                Toast.makeText(getApplicationContext(), "Signed in", Toast.LENGTH_SHORT).show();
+                user = mAuth.getCurrentUser();
+                Toast.makeText(getApplicationContext(), getString(R.string.sign) + " " + user.getEmail(), Toast.LENGTH_SHORT).show();
             } else if (requestCode == RESULT_CANCELED) {
-                Toast.makeText(getApplicationContext(), "Sign in cancelled", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), getString(R.string.cancel), Toast.LENGTH_SHORT).show();
             }
-            /*else if(resultCode==RC_PHOTO_PICKER&&requestCode==RESULT_OK) {
-                Uri selectedImageUri = data.getData();
-                StorageReference photoRef = mStorageRef.child(selectedImageUri.getLastPathSegment());
-                photoRef.putFile(selectedImageUri);
-
-            }*/
         }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        if (mStateListener != null)
-            mAuth.removeAuthStateListener(mStateListener);
-        mAdapter.clear();
-        DetachListener();
+        if (isConnected) {
+            if (mStateListener != null)
+                mAuth.removeAuthStateListener(mStateListener);
+            mAdapter.clear();
+            DetachListener();
+        }
     }
 
     private void onSignedInInitialize() {
-        AttachListener();
+
+        if (mAuth.getCurrentUser() != null)
+            AttachListener();
     }
 
     private void OnSignedOut() {
-
+        NotificationManager nMgr = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        nMgr.cancelAll();
         mAdapter.clear();
         DetachListener();
 
@@ -169,7 +235,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        mAuth.addAuthStateListener(mStateListener);
+        if (isConnected)
+            mAuth.addAuthStateListener(mStateListener);
     }
 
     private void AttachListener() {
@@ -178,8 +245,14 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                     Task task = dataSnapshot.getValue(Task.class);
-                    mAdapter.add(task);
-
+                    if (user.getUid().equals(task.getId())) {
+                        ContentValues values = new ContentValues();
+                        values.put(TaskContract.TaskEntry.COLUMN_DESCRIPTION, task.getTask());
+                        getContentResolver().insert(TaskContract.TaskEntry.CONTENT_URI, values);
+                        for (int i = 0; i < TodoService.tinku.size(); i++)
+                            TodoService.tinku.remove(i);
+                        mAdapter.add(task);
+                    }
                 }
 
                 @Override
@@ -226,8 +299,10 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.signout:
                 AuthUI.getInstance().signOut(this);
+                break;
             default:
                 return super.onOptionsItemSelected(item);
         }
+        return true;
     }
 }

@@ -8,16 +8,31 @@ public class Task {
     String task;
     int priority;
     String date;
+    String setTime;
+    String photoUrl;
+    String id;
 
-    public Task(String task,int priority,String date)
-    {
+    public String getId() {
+        return id;
+    }
+
+    public String getPhotoUrl() {
+
+        return photoUrl;
+    }
+
+    public Task(String task, int priority, String date, String photoUrl, String id, String setTime) {
         this.task = task;
         this.priority = priority;
         this.date = date;
+        this.photoUrl = photoUrl;
+        this.id = id;
+        this.setTime = setTime;
+
     }
 
-    public Task()
-    {
+
+    public Task() {
 
     }
 
@@ -31,6 +46,10 @@ public class Task {
 
     public int getPriority() {
         return priority;
+    }
+
+    public String getSetTime() {
+        return setTime;
     }
 
     public void setPriority(int priority) {

@@ -26,7 +26,9 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 
-import static com.example.android.todolist.data.TaskContract.TaskEntry.TABLE_NAME;
+import com.example.android.todolist.TaskContract;
+
+import static com.example.android.todolist.TaskContract.TaskEntry.TABLE_NAME;
 
 // Verify that TaskContentProvider extends from ContentProvider and implements required methods
 public class TaskContentProvider extends ContentProvider {
@@ -35,15 +37,17 @@ public class TaskContentProvider extends ContentProvider {
     // It's convention to use 100, 200, 300, etc for directories,
     // and related ints (101, 102, ..) for items in that directory.
     public static final int TASKS = 100;
+    private long id;
     public static final int TASK_WITH_ID = 101;
 
     // CDeclare a static variable for the Uri matcher that you construct
     private static final UriMatcher sUriMatcher = buildUriMatcher();
 
     // Define a static buildUriMatcher method that associates URI's with their int match
+
     /**
-     Initialize a new matcher object without any matches,
-     then use .addURI(String authority, String path, int match) to add matches
+     * Initialize a new matcher object without any matches,
+     * then use .addURI(String authority, String path, int match) to add matches
      */
     public static UriMatcher buildUriMatcher() {
 
@@ -94,8 +98,8 @@ public class TaskContentProvider extends ContentProvider {
             case TASKS:
                 // Insert new values into the database
                 // Inserting values into tasks table
-                long id = db.insert(TABLE_NAME, null, values);
-                if ( id > 0 ) {
+                id = db.insert(TABLE_NAME, null, values);
+                if (id > 0) {
                     returnUri = ContentUris.withAppendedId(TaskContract.TaskEntry.CONTENT_URI, id);
                 } else {
                     throw new android.database.SQLException("Failed to insert row into " + uri);
@@ -131,7 +135,7 @@ public class TaskContentProvider extends ContentProvider {
         switch (match) {
             // Query for the tasks directory
             case TASKS:
-                retCursor =  db.query(TABLE_NAME,
+                retCursor = db.query(TABLE_NAME,
                         projection,
                         selection,
                         selectionArgs,
@@ -172,6 +176,9 @@ public class TaskContentProvider extends ContentProvider {
                 String id = uri.getPathSegments().get(1);
                 // Use selections/selectionArgs to filter for this ID
                 tasksDeleted = db.delete(TABLE_NAME, "_id=?", new String[]{id});
+                break;
+            case TASKS:
+                tasksDeleted = db.delete(TABLE_NAME, null, null);
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
